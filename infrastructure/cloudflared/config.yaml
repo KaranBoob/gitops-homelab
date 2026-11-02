@@ -1,0 +1,17 @@
+tunnel: 00000000-0000-0000-0000-000000000000
+credentials-file: /etc/cloudflared/creds/credentials.json
+metrics: 0.0.0.0:2000
+ingress:
+  - hostname: app-dev.example.com
+    service: http://edge.edge.svc.cluster.local:80
+  - hostname: api-dev.example.com
+    service: http://edge.edge.svc.cluster.local:80
+  - hostname: app-staging.example.com
+    service: http://edge.edge.svc.cluster.local:80
+  - hostname: api-staging.example.com
+    service: http://edge.edge.svc.cluster.local:80
+  - hostname: app.example.com
+    service: http://edge.edge.svc.cluster.local:80
+  - hostname: api.example.com
+    service: http://edge.edge.svc.cluster.local:80
+  - service: http_status:404

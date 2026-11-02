@@ -1,0 +1,33 @@
+# Used twice: by `helm install` at bootstrap, then by the argocd Application
+# in clusters/homelab/infrastructure-helm.yaml. Secret/argocd-age (key keys.txt)
+# must exist in namespace argocd before install.
+configs:
+  cm:
+    kustomize.buildOptions: "--enable-alpha-plugins --enable-exec"
+repoServer:
+  env:
+    - name: SOPS_AGE_KEY_FILE
+      value: /home/argocd/.config/sops/age/keys.txt
+  volumes:
+    - name: custom-tools
+      emptyDir: {}
+    - name: age-key
+      secret:
+        secretName: argocd-age
+  initContainers:
+    - name: install-ksops
+      image: viaductoss/ksops:v4.5.1
+      command: ["/usr/local/bin/ksops", "install", "--with-kustomize", "/custom-tools"]
+      volumeMounts:
+        - name: custom-tools
+          mountPath: /custom-tools
+  volumeMounts:
+    - name: custom-tools
+      mountPath: /usr/local/bin/kustomize
+      subPath: kustomize
+    - name: custom-tools
+      mountPath: /usr/local/bin/ksops
+      subPath: ksops
+    - name: age-key
+      mountPath: /home/argocd/.config/sops/age
+      readOnly: true

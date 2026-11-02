@@ -1,0 +1,60 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: infrastructure-manifests
+  namespace: argocd
+spec:
+  goTemplate: true
+  goTemplateOptions: ["missingkey=error"]
+  generators:
+    - list:
+        elements:
+          - name: storage
+            namespace: local-path-storage
+            path: infrastructure/storage
+          - name: envoy-gateway-config
+            namespace: edge
+            path: infrastructure/envoy-gateway/gateway
+          - name: cloudflared
+            namespace: edge
+            path: infrastructure/cloudflared
+          - name: cloudflared-secret
+            namespace: edge
+            path: infrastructure/cloudflared/secret
+          - name: minio-secret
+            namespace: object-store
+            path: infrastructure/minio/secret
+          - name: grafana-secret
+            namespace: observability
+            path: infrastructure/kube-prometheus-stack/secret
+          - name: loki-secret
+            namespace: observability
+            path: infrastructure/loki/secret
+          - name: monitors
+            namespace: observability
+            path: infrastructure/kube-prometheus-stack/monitors
+  template:
+    metadata:
+      name: "{{.name}}"
+    spec:
+      project: platform
+      source:
+        repoURL: https://github.com/KaranBoob/gitops-homelab.git
+        targetRevision: main
+        path: "{{.path}}"
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: "{{.namespace}}"
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        retry:
+          limit: 10
+          backoff:
+            duration: 30s
+            factor: 2
+            maxDuration: 10m
+        syncOptions:
+          - CreateNamespace=true
+          - SkipDryRunOnMissingResource=true

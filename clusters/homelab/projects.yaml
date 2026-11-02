@@ -1,0 +1,76 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: platform
+  namespace: argocd
+spec:
+  description: Cluster-wide components
+  sourceRepos:
+    - https://github.com/KaranBoob/gitops-homelab.git
+    - https://argoproj.github.io/argo-helm
+    - https://charts.jetstack.io
+    - https://cloudnative-pg.github.io/charts
+    - docker.io/envoyproxy
+    - https://kubernetes-sigs.github.io/metrics-server/
+    - https://prometheus-community.github.io/helm-charts
+    - https://charts.min.io/
+    - https://grafana.github.io/helm-charts
+  destinations:
+    - namespace: "*"
+      server: https://kubernetes.default.svc
+  clusterResourceWhitelist:
+    - group: "*"
+      kind: "*"
+---
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: dev
+  namespace: argocd
+spec:
+  sourceRepos:
+    - https://github.com/KaranBoob/gitops-homelab.git
+  destinations:
+    - namespace: dev
+      server: https://kubernetes.default.svc
+  clusterResourceWhitelist:
+    - group: ""
+      kind: Namespace
+---
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: staging
+  namespace: argocd
+spec:
+  sourceRepos:
+    - https://github.com/KaranBoob/gitops-homelab.git
+  destinations:
+    - namespace: staging
+      server: https://kubernetes.default.svc
+  clusterResourceWhitelist:
+    - group: ""
+      kind: Namespace
+---
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: prod
+  namespace: argocd
+spec:
+  sourceRepos:
+    - https://github.com/KaranBoob/gitops-homelab.git
+  destinations:
+    - namespace: prod
+      server: https://kubernetes.default.svc
+  clusterResourceWhitelist:
+    - group: ""
+      kind: Namespace
+  # No prod sync from Friday 17:00 to Monday 09:00.
+  syncWindows:
+    - kind: deny
+      schedule: "0 17 * * 5"
+      duration: 64h
+      timeZone: Asia/Bangkok
+      applications: ["*"]
+      manualSync: false

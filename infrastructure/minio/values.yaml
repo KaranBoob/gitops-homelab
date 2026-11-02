@@ -1,0 +1,39 @@
+# Holds Loki chunks only. Postgres backups go to R2.
+fullnameOverride: minio
+mode: standalone
+replicas: 1
+existingSecret: minio-root
+persistence:
+  enabled: true
+  storageClass: hostpath
+  size: 20Gi
+securityContext:
+  enabled: true
+  runAsUser: 1000
+  runAsGroup: 1000
+  fsGroup: 1000
+service:
+  type: ClusterIP
+buckets:
+  - name: loki-chunks
+    policy: none
+    purge: false
+  - name: loki-ruler
+    policy: none
+    purge: false
+  - name: loki-admin
+    policy: none
+    purge: false
+# Replaces the chart default, which creates console/console123 as admin.
+users:
+  - accessKey: loki
+    existingSecret: minio-loki
+    existingSecretKey: secretKey
+    policy: readwrite
+metrics:
+  serviceMonitor:
+    enabled: true
+resources:
+  requests:
+    cpu: 100m
+    memory: 256Mi

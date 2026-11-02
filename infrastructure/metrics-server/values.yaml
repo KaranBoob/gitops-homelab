@@ -1,0 +1,3 @@
+# Bare-metal kubelets usually serve self-signed certs.
+args:
+  - --kubelet-insecure-tls

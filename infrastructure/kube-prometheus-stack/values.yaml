@@ -1,0 +1,38 @@
+grafana:
+  # Argo CD renders with `helm template`, where the chart's lookup() is
+  # empty and the password would be regenerated on every render.
+  admin:
+    existingSecret: grafana-admin
+    userKey: admin-user
+    passwordKey: admin-password
+  service:
+    type: ClusterIP
+  persistence:
+    enabled: false
+  additionalDataSources:
+    - name: Loki
+      type: loki
+      url: http://loki.observability.svc.cluster.local:3100
+prometheus:
+  prometheusSpec:
+    retention: 2d
+    replicas: 1
+    securityContext:
+      runAsNonRoot: true
+      runAsUser: 1000
+      fsGroup: 1000
+    ruleSelectorNilUsesHelmValues: false
+    serviceMonitorSelectorNilUsesHelmValues: false
+    podMonitorSelectorNilUsesHelmValues: false
+    probeSelectorNilUsesHelmValues: false
+    podMonitorNamespaceSelector: {}
+    serviceMonitorNamespaceSelector: {}
+    storageSpec:
+      volumeClaimTemplate:
+        spec:
+          storageClassName: hostpath
+          accessModes:
+            - ReadWriteOnce
+          resources:
+            requests:
+              storage: 10Gi

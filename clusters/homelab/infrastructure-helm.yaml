@@ -1,0 +1,115 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: infrastructure-helm
+  namespace: argocd
+spec:
+  goTemplate: true
+  goTemplateOptions: ["missingkey=error"]
+  generators:
+    - list:
+        # Chart versions live here only. scripts/validate.sh reads this list.
+        elements:
+          - name: argocd
+            namespace: argocd
+            repoURL: https://argoproj.github.io/argo-helm
+            chart: argo-cd
+            version: "10.11.6"
+            release: argocd
+            values: bootstrap/argocd/values.yaml
+          - name: cert-manager
+            namespace: cert-manager
+            repoURL: https://charts.jetstack.io
+            chart: cert-manager
+            version: v1.21.3
+            release: cert-manager
+            values: infrastructure/cert-manager/values.yaml
+          - name: cnpg-operator
+            namespace: cnpg-system
+            repoURL: https://cloudnative-pg.github.io/charts
+            chart: cloudnative-pg
+            version: "0.29.1"
+            release: cloudnative-pg
+            values: infrastructure/cloudnative-pg/values.yaml
+          - name: barman-cloud
+            namespace: cnpg-system
+            repoURL: https://cloudnative-pg.github.io/charts
+            chart: plugin-barman-cloud
+            version: "0.8.1"
+            release: barman-cloud
+            values: infrastructure/barman-cloud/values.yaml
+          - name: envoy-gateway
+            namespace: envoy-gateway-system
+            repoURL: docker.io/envoyproxy
+            chart: gateway-helm
+            version: v1.9.3
+            release: envoy-gateway
+            values: infrastructure/envoy-gateway/values.yaml
+          - name: metrics-server
+            namespace: kube-system
+            repoURL: https://kubernetes-sigs.github.io/metrics-server/
+            chart: metrics-server
+            version: "3.14.0"
+            release: metrics-server
+            values: infrastructure/metrics-server/values.yaml
+          - name: kube-prometheus-stack
+            namespace: observability
+            repoURL: https://prometheus-community.github.io/helm-charts
+            chart: kube-prometheus-stack
+            version: "92.17.0"
+            release: kube-prometheus-stack
+            values: infrastructure/kube-prometheus-stack/values.yaml
+          - name: minio
+            namespace: object-store
+            repoURL: https://charts.min.io/
+            chart: minio
+            version: "5.4.0"
+            release: minio
+            values: infrastructure/minio/values.yaml
+          - name: loki
+            namespace: observability
+            repoURL: https://grafana.github.io/helm-charts
+            chart: loki
+            version: "7.5.0"
+            release: loki
+            values: infrastructure/loki/values.yaml
+          - name: alloy
+            namespace: observability
+            repoURL: https://grafana.github.io/helm-charts
+            chart: alloy
+            version: "1.15.0"
+            release: alloy
+            values: infrastructure/alloy/values.yaml
+  template:
+    metadata:
+      name: "{{.name}}"
+    spec:
+      project: platform
+      sources:
+        - repoURL: "{{.repoURL}}"
+          chart: "{{.chart}}"
+          targetRevision: "{{.version}}"
+          helm:
+            releaseName: "{{.release}}"
+            valueFiles:
+              - "$values/{{.values}}"
+        - repoURL: https://github.com/KaranBoob/gitops-homelab.git
+          targetRevision: main
+          ref: values
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: "{{.namespace}}"
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        retry:
+          limit: 10
+          backoff:
+            duration: 30s
+            factor: 2
+            maxDuration: 10m
+        syncOptions:
+          - CreateNamespace=true
+          - ServerSideApply=true
+          - SkipDryRunOnMissingResource=true

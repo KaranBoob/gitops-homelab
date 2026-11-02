@@ -1,0 +1,57 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend
+spec:
+  # No replicas here: dev sets it, staging/prod leave it to the HPA.
+  selector:
+    matchLabels:
+      app: backend
+  template:
+    metadata:
+      labels:
+        app: backend
+    spec:
+      automountServiceAccountToken: false
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: kubernetes.io/hostname
+          whenUnsatisfiable: DoNotSchedule
+          nodeTaintsPolicy: Honor
+          labelSelector:
+            matchLabels:
+              app: backend
+      containers:
+        - name: backend
+          image: ghcr.io/stefanprodan/podinfo:6.17.0
+          ports:
+            - name: http
+              containerPort: 9898
+          env:
+            - name: PODINFO_UI_COLOR
+              value: "#34577c"
+            # Stock podinfo does not open SQL. The real image reads this.
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-app
+                  key: uri
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: http
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+          resources:
+            requests:
+              cpu: 20m
+              memory: 64Mi
+            limits:
+              memory: 128Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+            runAsNonRoot: true

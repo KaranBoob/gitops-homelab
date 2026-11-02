@@ -1,0 +1,20 @@
+name: validate
+on:
+  pull_request:
+  push:
+    branches: [main]
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: azure/setup-helm@v4
+        with:
+          version: v3.22.1
+      - name: Install kustomize and kubeconform
+        run: |
+          mkdir -p "$HOME/bin"
+          curl -sSL https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize%2Fv5.8.3/kustomize_v5.8.3_linux_amd64.tar.gz | tar xz -C "$HOME/bin"
+          curl -sSL https://github.com/yannh/kubeconform/releases/download/v0.8.0/kubeconform-linux-amd64.tar.gz | tar xz -C "$HOME/bin"
+          echo "$HOME/bin" >> "$GITHUB_PATH"
+      - run: scripts/validate.sh

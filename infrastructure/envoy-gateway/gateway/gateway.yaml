@@ -1,0 +1,84 @@
+apiVersion: gateway.networking.k8s.io/v1
+kind: GatewayClass
+metadata:
+  name: eg
+spec:
+  controllerName: gateway.envoyproxy.io/gatewayclass-controller
+  parametersRef:
+    group: gateway.envoyproxy.io
+    kind: EnvoyProxy
+    name: edge
+    namespace: edge
+---
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: EnvoyProxy
+metadata:
+  name: edge
+  namespace: edge
+spec:
+  provider:
+    type: Kubernetes
+    kubernetes:
+      envoyDeployment:
+        replicas: 2
+        pod:
+          topologySpreadConstraints:
+            - maxSkew: 1
+              topologyKey: kubernetes.io/hostname
+              whenUnsatisfiable: DoNotSchedule
+              nodeTaintsPolicy: Honor
+              labelSelector:
+                matchLabels:
+                  gateway.envoyproxy.io/owning-gateway-name: edge
+      envoyPDB:
+        minAvailable: 1
+      envoyService:
+        name: edge
+        type: ClusterIP
+  telemetry:
+    accessLog:
+      settings:
+        - format:
+            type: JSON
+            # Every request arrives from a cloudflared pod, so the real
+            # client address is CF-Connecting-IP, not the TCP peer.
+            json:
+              start_time: "%START_TIME%"
+              client_ip: "%REQ(CF-CONNECTING-IP)%"
+              cf_ray: "%REQ(CF-RAY)%"
+              host: "%REQ(:AUTHORITY)%"
+              method: "%REQ(:METHOD)%"
+              path: "%REQ(X-ENVOY-ORIGINAL-PATH?:PATH)%"
+              status: "%RESPONSE_CODE%"
+              duration_ms: "%DURATION%"
+              bytes_sent: "%BYTES_SENT%"
+              route: "%ROUTE_NAME%"
+              upstream: "%UPSTREAM_HOST%"
+              user_agent: "%REQ(USER-AGENT)%"
+          sinks:
+            - type: File
+              file:
+                path: /dev/stdout
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: edge
+  namespace: edge
+spec:
+  gatewayClassName: eg
+  infrastructure:
+    parametersRef:
+      group: gateway.envoyproxy.io
+      kind: EnvoyProxy
+      name: edge
+  listeners:
+    - name: http
+      protocol: HTTP
+      port: 80
+      allowedRoutes:
+        namespaces:
+          from: Selector
+          selector:
+            matchLabels:
+              homelab.gitops/expose: "true"

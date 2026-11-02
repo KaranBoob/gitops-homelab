@@ -1,0 +1,3 @@
+# Only the barman-cloud plugin needs it: operator <-> plugin mTLS.
+crds:
+  enabled: true

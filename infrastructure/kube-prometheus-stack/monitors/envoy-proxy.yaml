@@ -1,0 +1,13 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PodMonitor
+metadata:
+  name: envoy-proxy
+  namespace: edge
+spec:
+  selector:
+    matchLabels:
+      gateway.envoyproxy.io/owning-gateway-name: edge
+      gateway.envoyproxy.io/owning-gateway-namespace: edge
+  podMetricsEndpoints:
+    - port: metrics
+      path: /stats/prometheus

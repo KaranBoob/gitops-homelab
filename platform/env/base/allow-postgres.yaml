@@ -1,0 +1,33 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-postgres
+spec:
+  podSelector:
+    matchLabels:
+      cnpg.io/cluster: postgres
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: cnpg-system
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: observability
+    # Replication between instances, and join jobs.
+    - from:
+        - podSelector:
+            matchLabels:
+              cnpg.io/cluster: postgres
+      ports:
+        - port: 5432
+        - port: 8000
+    - from:
+        - podSelector:
+            matchLabels:
+              app: backend
+      ports:
+        - port: 5432

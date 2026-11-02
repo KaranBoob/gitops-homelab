@@ -1,0 +1,49 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: platform-env
+  namespace: argocd
+spec:
+  goTemplate: true
+  goTemplateOptions: ["missingkey=error"]
+  generators:
+    - list:
+        elements:
+          - env: dev
+            auto: "true"
+          - env: staging
+            auto: "true"
+          - env: prod
+            auto: "false"
+  template:
+    metadata:
+      name: "env-{{.env}}"
+    spec:
+      project: "{{.env}}"
+      sources:
+        - repoURL: https://github.com/KaranBoob/gitops-homelab.git
+          targetRevision: main
+          path: "platform/env/overlays/{{.env}}"
+        - repoURL: https://github.com/KaranBoob/gitops-homelab.git
+          targetRevision: main
+          path: "platform/env/secrets/{{.env}}"
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: "{{.env}}"
+      syncPolicy:
+        retry:
+          limit: 10
+          backoff:
+            duration: 30s
+            factor: 2
+            maxDuration: 10m
+        syncOptions:
+          - CreateNamespace=true
+  templatePatch: |
+    {{- if eq .auto "true" }}
+    spec:
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+    {{- end }}

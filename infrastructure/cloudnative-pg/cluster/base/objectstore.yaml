@@ -1,0 +1,18 @@
+apiVersion: barmancloud.cnpg.io/v1
+kind: ObjectStore
+metadata:
+  name: r2
+spec:
+  retentionPolicy: 7d
+  configuration:
+    destinationPath: s3://homelab-pg-ENV/
+    endpointURL: https://ACCOUNT_ID.r2.cloudflarestorage.com
+    s3Credentials:
+      accessKeyId:
+        name: r2-backup
+        key: ACCESS_KEY_ID
+      secretAccessKey:
+        name: r2-backup
+        key: ACCESS_SECRET_KEY
+    wal:
+      compression: gzip

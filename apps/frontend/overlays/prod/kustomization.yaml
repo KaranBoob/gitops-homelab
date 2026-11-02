@@ -1,0 +1,17 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - ../../base
+components:
+  - ../../components/ha
+namespace: prod
+images:
+  - name: nginxinc/nginx-unprivileged
+    newTag: "1.30.6-alpine"
+configMapGenerator:
+  - name: frontend-html
+    behavior: replace
+    files:
+      - index.html
+patches:
+  - path: route.yaml
