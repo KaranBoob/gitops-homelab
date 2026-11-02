@@ -2,7 +2,7 @@
 
 GitOps สำหรับ Kubernetes homelab คลัสเตอร์เดียว สาม env (`dev`, `staging`, `prod`) ใช้ Argo CD เหตุผลการออกแบบอยู่ใน [docs/design.md](docs/design.md)
 
-เวลาที่ใช้: _ ชั่วโมง
+เวลาที่ใช้:  2.5 ชั่วโมง
 
 ## สมมติฐานตอน bootstrap
 
