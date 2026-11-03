@@ -20,6 +20,12 @@ spec:
           - name: minio-secret
             namespace: object-store
             path: infrastructure/minio/secret
+          - name: garage
+            namespace: object-store
+            path: infrastructure/garage
+          - name: garage-secret
+            namespace: object-store
+            path: infrastructure/garage/secret
           - name: grafana-secret
             namespace: observability
             path: infrastructure/kube-prometheus-stack/secret

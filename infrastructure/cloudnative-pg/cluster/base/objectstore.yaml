@@ -7,7 +7,7 @@ spec:
   configuration:
     # local-test: MinIO in-cluster instead of R2. Real submission (main) uses R2.
     destinationPath: s3://postgres-backup/ENV/
-    endpointURL: http://minio.object-store.svc.cluster.local:9000
+    endpointURL: http://garage.object-store.svc.cluster.local:3900
     s3Credentials:
       accessKeyId:
         name: r2-backup

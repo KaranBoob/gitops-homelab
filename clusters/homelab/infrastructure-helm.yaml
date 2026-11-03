@@ -59,13 +59,9 @@ spec:
             version: "92.17.0"
             release: kube-prometheus-stack
             values: infrastructure/kube-prometheus-stack/values.yaml
-          - name: minio
-            namespace: object-store
-            repoURL: https://charts.min.io/
-            chart: minio
-            version: "5.4.0"
-            release: minio
-            values: infrastructure/minio/values.yaml
+          # minio dropped on local-test: its images now need a Docker Hub
+          # login to pull (hit during this test). Garage fills in instead,
+          # see infrastructure/garage.
           - name: loki
             namespace: observability
             repoURL: https://grafana.github.io/helm-charts

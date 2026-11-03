@@ -1,0 +1,24 @@
+# local-test only: stand-in for MinIO, whose images now require a login
+# to pull (confirmed during this test). Not part of the submitted design.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: garage-config
+  namespace: object-store
+data:
+  garage.toml: |
+    metadata_dir = "/data/meta"
+    data_dir = "/data/data"
+    db_engine = "sqlite"
+    replication_factor = 1
+
+    rpc_bind_addr = "[::]:3901"
+    rpc_public_addr = "garage.object-store.svc.cluster.local:3901"
+
+    [s3_api]
+    s3_region = "garage"
+    api_bind_addr = "[::]:3900"
+    root_domain = ".s3.garage.localhost"
+
+    [admin]
+    api_bind_addr = "[::]:3903"
