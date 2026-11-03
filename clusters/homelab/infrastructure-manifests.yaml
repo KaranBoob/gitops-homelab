@@ -15,12 +15,8 @@ spec:
           - name: envoy-gateway-config
             namespace: edge
             path: infrastructure/envoy-gateway/gateway
-          - name: cloudflared
-            namespace: edge
-            path: infrastructure/cloudflared
-          - name: cloudflared-secret
-            namespace: edge
-            path: infrastructure/cloudflared/secret
+          # cloudflared skipped on local-test: no real tunnel here, use
+          # kubectl port-forward to svc/edge instead.
           - name: minio-secret
             namespace: object-store
             path: infrastructure/minio/secret
@@ -40,7 +36,7 @@ spec:
       project: platform
       source:
         repoURL: https://github.com/KaranBoob/gitops-homelab.git
-        targetRevision: main
+        targetRevision: local-test
         path: "{{.path}}"
       destination:
         server: https://kubernetes.default.svc

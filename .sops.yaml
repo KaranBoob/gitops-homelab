@@ -1,4 +1,6 @@
 creation_rules:
   - path_regex: \.sops\.yaml$
     encrypted_regex: ^(data|stringData)$
-    age: age1zh5mn4y0cgpvex59tvdlrkv9xh539uau59tkmfc5qnn8jqr8t4lswx8jyf
+    # local-test branch only: key for testing on this machine, not the
+    # key used for the real submission (that stays on main).
+    age: age1gy5uly9nurdj2pncxa746t5ce40f7lucy3uhm2hr3gzpx8n3tu0shw2r2w

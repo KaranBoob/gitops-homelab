@@ -22,7 +22,7 @@ spec:
       project: "{{.env}}"
       source:
         repoURL: https://github.com/KaranBoob/gitops-homelab.git
-        targetRevision: main
+        targetRevision: local-test
         path: "infrastructure/cloudnative-pg/cluster/overlays/{{.env}}"
       destination:
         server: https://kubernetes.default.svc

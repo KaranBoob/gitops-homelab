@@ -1,4 +1,4 @@
-# Holds Loki chunks only. Postgres backups go to R2.
+# Holds Loki chunks. Postgres backups go to R2 (main) / this MinIO (local-test).
 fullnameOverride: minio
 mode: standalone
 replicas: 1
@@ -24,10 +24,18 @@ buckets:
   - name: loki-admin
     policy: none
     purge: false
+  # local-test only: Postgres backup target (main uses R2 for this).
+  - name: postgres-backup
+    policy: none
+    purge: false
 # Replaces the chart default, which creates console/console123 as admin.
 users:
   - accessKey: loki
     existingSecret: minio-loki
+    existingSecretKey: secretKey
+    policy: readwrite
+  - accessKey: postgres-backup
+    existingSecret: minio-postgres-backup
     existingSecretKey: secretKey
     policy: readwrite
 metrics:

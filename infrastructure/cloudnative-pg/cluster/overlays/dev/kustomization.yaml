@@ -10,4 +10,4 @@ patches:
     patch: |-
       - op: replace
         path: /spec/configuration/destinationPath
-        value: s3://homelab-pg-dev/
+        value: s3://postgres-backup/dev/

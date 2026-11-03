@@ -94,7 +94,7 @@ spec:
             valueFiles:
               - "$values/{{.values}}"
         - repoURL: https://github.com/KaranBoob/gitops-homelab.git
-          targetRevision: main
+          targetRevision: local-test
           ref: values
       destination:
         server: https://kubernetes.default.svc

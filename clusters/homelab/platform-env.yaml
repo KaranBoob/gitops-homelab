@@ -22,10 +22,10 @@ spec:
       project: "{{.env}}"
       sources:
         - repoURL: https://github.com/KaranBoob/gitops-homelab.git
-          targetRevision: main
+          targetRevision: local-test
           path: "platform/env/overlays/{{.env}}"
         - repoURL: https://github.com/KaranBoob/gitops-homelab.git
-          targetRevision: main
+          targetRevision: local-test
           path: "platform/env/secrets/{{.env}}"
       destination:
         server: https://kubernetes.default.svc

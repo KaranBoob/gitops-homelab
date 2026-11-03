@@ -5,8 +5,9 @@ metadata:
 spec:
   retentionPolicy: 7d
   configuration:
-    destinationPath: s3://homelab-pg-ENV/
-    endpointURL: https://ACCOUNT_ID.r2.cloudflarestorage.com
+    # local-test: MinIO in-cluster instead of R2. Real submission (main) uses R2.
+    destinationPath: s3://postgres-backup/ENV/
+    endpointURL: http://minio.object-store.svc.cluster.local:9000
     s3Credentials:
       accessKeyId:
         name: r2-backup
